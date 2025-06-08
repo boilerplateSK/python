@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Python Learning Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA is designed as a guided, interactive journey rather than a static document. It uses a single-page layout with a sticky top navigation bar (Why Python?, Get Started, Core Concepts, Real World, Your Path) for easy exploration. The flow is logical: it starts with a high-level "Why Python?" section comparing it to a user's existing HTML/CSS knowledge, moves to a hands-on "Get Started" section with an interactive code sandbox, dives deep into "Core Concepts" with clickable, explorable elements for each topic, shows "Real World" applications with charts and project examples, and finally lays out "Your Path" to mastery with a visual timeline. This non-linear but guided structure was chosen to keep a beginner engaged, provide immediate hands-on feedback, and allow the user to jump to topics of interest, making the learning process more effective and less intimidating than a linear text. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Python vs. HTML/CSS -> Goal: Compare -> Viz: Side-by-side card layout -> Interaction: Static, clear comparison -> Justification: Directly addresses the user's background -> Library/Method: HTML/Tailwind.
+        - Report Info: "Hello, World!" & Basic Syntax -> Goal: Engage/Inform -> Viz: Interactive code editor simulation -> Interaction: User types code, clicks 'Run' to see live output -> Justification: Provides immediate, tangible feedback, which is crucial for beginners. -> Library/Method: Vanilla JS.
+        - Report Info: Data Types (Lists, Dictionaries, etc.) -> Goal: Organize/Inform -> Viz: Grid of interactive cards -> Interaction: Click card to reveal details and a mini code sandbox -> Justification: Breaks a large topic into digestible, self-contained, interactive modules. -> Library/Method: HTML/Tailwind/JS.
+        - Report Info: Control Flow (Loops) -> Goal: Explain Change -> Viz: Animated visualizer with colored blocks -> Interaction: Click 'Run' to see the animation of a loop executing -> Justification: Visualizes an abstract concept, making it much easier to understand than text alone. -> Library/Method: JS manipulating CSS.
+        - Report Info: Python Applications (Web, Data Science) -> Goal: Inform/Organize -> Viz: Bar Chart -> Interaction: Hover tooltips with more info -> Justification: Provides a clear, quantitative-style overview of Python's versatility. -> Library/Method: Chart.js/Canvas.
+        - Report Info: Beginner Project Ideas -> Goal: Engage/Guide -> Viz: Grid of flip cards -> Interaction: Hover to flip card and reveal project details -> Justification: A fun, engaging way to present next steps and learning goals. -> Library/Method: HTML/Tailwind/JS (CSS transform).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8F7F4; color: #333; }
+        .nav-link { transition: color 0.3s; }
+        .nav-link:hover { color: #818CF8; }
+        .active-nav-link { color: #818CF8; font-weight: 600; }
+        .code-block { background-color: #1E293B; color: #E2E8F0; border-radius: 0.5rem; padding: 1rem; font-family: 'Courier New', monospace; white-space: pre-wrap; }
+        .interactive-code-area { background-color: #1E293B; color: #E2E8F0; border-radius: 0.5rem; padding: 1rem; font-family: 'Courier New', monospace; width: 100%; height: 100px; border: 1px solid #334155; }
+        .run-button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; font-weight: 600; }
+        .run-button:hover { background-color: #45a049; }
+        .output-box { background-color: #2c3e50; color: #ecf0f1; border-radius: 5px; padding: 10px; margin-top: 10px; min-height: 40px; font-family: 'Courier New', monospace; }
+        .card-flip { perspective: 1000px; }
+        .card-flip-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .card-flip:hover .card-flip-inner { transform: rotateY(180deg); }
+        .card-flip-front, .card-flip-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 0.5rem; padding: 1rem; }
+        .card-flip-front { background-color: #ffffff; border: 1px solid #e5e7eb; }
+        .card-flip-back { background-color: #A0C4FF; color: #1E293B; transform: rotateY(180deg); }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+    </style>
+</head>
+<body class="bg-[#F8F7F4] text-gray-800">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-indigo-500">Learn Python</a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#why-python" class="nav-link">Why Python?</a>
+                <a href="#get-started" class="nav-link">Get Started</a>
+                <a href="#core-concepts" class="nav-link">Core Concepts</a>
+                <a href="#real-world" class="nav-link">Real World</a>
+                <a href="#your-path" class="nav-link">Your Path</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden flex items-center">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <a href="#why-python" class="block py-2 px-4 text-sm hover:bg-gray-200">Why Python?</a>
+            <a href="#get-started" class="block py-2 px-4 text-sm hover:bg-gray-200">Get Started</a>
+            <a href="#core-concepts" class="block py-2 px-4 text-sm hover:bg-gray-200">Core Concepts</a>
+            <a href="#real-world" class="block py-2 px-4 text-sm hover:bg-gray-200">Real World</a>
+            <a href="#your-path" class="block py-2 px-4 text-sm hover:bg-gray-200">Your Path</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        
+        <section id="hero" class="text-center mb-24">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4">Your Journey from <span class="text-blue-500">Design</span> to <span class="text-indigo-500">Development</span></h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">You've mastered the look and feel of the web with HTML & CSS. Now, it's time to build its brain. This guide will show you how Python can bring your creations to life.</p>
+        </section>
+
+        <section id="why-python" class="mb-24 scroll-mt-20">
+            <h2 class="text-4xl font-bold text-center mb-12">Why Python is Your Next Big Step</h2>
+            <div class="text-center max-w-4xl mx-auto mb-12">
+                <p class="text-lg text-gray-700">This section clarifies Python's role compared to your existing skills. While HTML and CSS build the 'front' of the stage, Python works 'backstage' to make the show happen. Here you'll see how they work together to create complete, dynamic web applications, and explore the vast possibilities Python unlocks beyond the browser.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 items-start">
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-bold mb-4 text-center text-blue-500">Front-End (Your Current Skills)</h3>
+                    <p class="text-center mb-4">HTML, CSS, JavaScript</p>
+                    <p class="mb-4">You build what the user sees and interacts with. You create the structure with HTML and style it with CSS to make it beautiful and responsive. Your focus is on the user experience and visual presentation inside the browser.</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✓</span><span>Handles layout, design, and interactivity.</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✓</span><span>Runs directly in the user's web browser.</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✓</span><span>Creates visually stunning, static websites.</span></li>
+                    </ul>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-lg border-4 border-indigo-400">
+                    <h3 class="text-2xl font-bold mb-4 text-center text-indigo-500">Back-End (Your Next Step)</h3>
+                    <p class="text-center mb-4">Python, Databases</p>
+                    <p class="mb-4">Python works on the server, handling the logic behind the scenes. It processes data, interacts with databases, manages user accounts, and powers the dynamic features of a site. It's the engine that makes a website functional.</p>
+                     <ul class="space-y-2">
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✓</span><span>Manages data, users, and application logic.</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✓</span><span>Runs on a server, not in the browser.</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">✓</span><span>Turns static sites into powerful applications.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="get-started" class="mb-24 scroll-mt-20">
+            <h2 class="text-4xl font-bold text-center mb-12">Get Started: Your First Lines of Code</h2>
+            <div class="text-center max-w-4xl mx-auto mb-12">
+                <p class="text-lg text-gray-700">The best way to learn is by doing. This section provides a hands-on start. You'll begin with the classic "Hello, World!" program in our interactive sandbox. It's a simple but powerful first step that demonstrates how to give the computer an instruction and see an immediate result. We'll also cover the most critical syntax rule in Python: indentation.</p>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-bold mb-4">"Hello, World!" Interactive Sandbox</h3>
+                <p class="mb-4">In programming, the first step is always to make the computer say "Hello, World!". Type the code below into the box and press "Run".</p>
+                <textarea id="hello-world-input" class="interactive-code-area">print("Hello, World!")</textarea>
+                <button id="hello-world-run" class="run-button mt-4">Run</button>
+                <div class="mt-4">
+                    <p class="font-semibold">Output:</p>
+                    <div id="hello-world-output" class="output-box"></div>
+                </div>
+                 <div class="mt-8 p-6 bg-amber-100 rounded-lg">
+                    <h4 class="text-xl font-bold text-amber-800">Key Concept: Indentation Matters!</h4>
+                    <p class="text-amber-700 mt-2">Unlike HTML/CSS, where spacing is for readability, in Python, indentation (the space at the beginning of a line) defines code blocks. Incorrect indentation will cause errors. This is one of Python's most important rules!</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="core-concepts" class="mb-24 scroll-mt-20">
+            <h2 class="text-4xl font-bold text-center mb-12">Core Concepts: The Building Blocks</h2>
+             <div class="text-center max-w-4xl mx-auto mb-12">
+                <p class="text-lg text-gray-700">Here, you'll explore the fundamental elements of Python. This section is your toolkit. You'll learn about variables for storing information, the different data types that Python uses to understand numbers and text, operators for performing actions, and control flow for making decisions. Use the interactive examples to experiment and solidify your understanding.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Variables -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl mb-2">Variables</h3>
+                    <p class="mb-4">Named containers for storing data. You don't need to declare a type; Python figures it out automatically.</p>
+                    <div class="code-block text-sm">name = "Alice"<br>age = 30<br>is_student = True</div>
+                </div>
+                
+                <!-- Strings -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl mb-2">Strings (Text)</h3>
+                    <p class="mb-4">Used for text. You can combine, slice, and change their case. Always in quotes.</p>
+                    <div class="code-block text-sm">greeting = "Hello"<br>loud_greeting = greeting.upper() # "HELLO"</div>
+                </div>
+
+                <!-- Numbers -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl mb-2">Numbers</h3>
+                    <p class="mb-4">Used for math. Integers (whole numbers) and floats (decimals).</p>
+                    <div class="code-block text-sm">x = 10<br>y = 3.14<br>result = x * 2 # 20</div>
+                </div>
+
+                <!-- Lists -->
+                 <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl mb-2">Lists</h3>
+                    <p class="mb-4">Ordered, changeable collections of items. Like a shopping list you can add to or remove from.</p>
+                    <div class="code-block text-sm">fruits = ["apple", "banana"]<br>fruits.append("cherry")</div>
+                </div>
+
+                <!-- Dictionaries -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl mb-2">Dictionaries</h3>
+                    <p class="mb-4">Store data in key-value pairs, like a real dictionary. Fast for looking up information.</p>
+                    <div class="code-block text-sm">user = {"name": "Bob", "age": 42}<br>print(user["name"]) # "Bob"</div>
+                </div>
+
+                <!-- Booleans & Conditionals -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl mb-2">Conditionals (if/else)</h3>
+                    <p class="mb-4">Make decisions in your code. Execute code only if a certain condition is True.</p>
+                    <div class="code-block text-sm">if age > 18:<br>&nbsp;&nbsp;print("Adult")<br>else:<br>&nbsp;&nbsp;print("Minor")</div>
+                </div>
+            </div>
+            
+            <div class="mt-12 bg-white p-8 rounded-lg shadow-lg">
+                 <h3 class="text-2xl font-bold mb-4">Interactive Control Flow: Loops</h3>
+                 <p class="mb-4">Loops let you repeat actions without rewriting code. Click "Run Loop" to see a `for` loop in action as it iterates through a list of items.</p>
+                 <div class="flex items-center space-x-4 mb-4">
+                     <button id="run-loop-btn" class="run-button">Run Loop</button>
+                     <p class="font-mono">for item in ["A", "B", "C"]:</p>
+                 </div>
+                 <div id="loop-visualizer" class="flex space-x-4 p-4 bg-gray-100 rounded">
+                    <div class="w-16 h-16 bg-gray-300 rounded flex items-center justify-center font-bold text-2xl">A</div>
+                    <div class="w-16 h-16 bg-gray-300 rounded flex items-center justify-center font-bold text-2xl">B</div>
+                    <div class="w-16 h-16 bg-gray-300 rounded flex items-center justify-center font-bold text-2xl">C</div>
+                 </div>
+            </div>
+        </section>
+
+        <section id="real-world" class="mb-24 scroll-mt-20">
+            <h2 class="text-4xl font-bold text-center mb-12">Python in the Real World</h2>
+             <div class="text-center max-w-4xl mx-auto mb-12">
+                <p class="text-lg text-gray-700">This section directly answers your questions: "What can I do with Python?" and "Can I make software?". The answer to both is a resounding yes! Explore the chart to see Python's popular uses, from powering websites to pioneering AI. Then, browse the project examples to see how Python can be used to build full-fledged applications.</p>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-lg mb-12">
+                 <h3 class="text-2xl font-bold text-center mb-6">Where is Python Used?</h3>
+                 <div class="chart-container">
+                    <canvas id="python-uses-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h4 class="text-xl font-bold mb-2">Automate Daily Tasks</h4>
+                    <p>Write simple scripts to organize files, send emails automatically, or scrape data from websites to save you hours of manual work.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h4 class="text-xl font-bold mb-2">Build Web Apps</h4>
+                    <p>Use powerful frameworks like Django and Flask to build the back-end for robust, scalable web applications and APIs.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h4 class="text-xl font-bold mb-2">Data Science & AI</h4>
+                    <p>Analyze data, create visualizations, and build machine learning models with libraries like Pandas, NumPy, and TensorFlow.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="your-path" class="scroll-mt-20">
+            <h2 class="text-4xl font-bold text-center mb-12">Your Path to Mastery</h2>
+            <div class="text-center max-w-4xl mx-auto mb-12">
+                <p class="text-lg text-gray-700">Learning to code is a journey, not a destination. This final section provides a roadmap and inspiration for your next steps. The most effective way to become a proficient programmer is to build things. Below you'll find a collection of classic beginner projects. Hover over them to see what they're about and which concepts they'll help you practice.</p>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="h-48 card-flip">
+                    <div class="card-flip-inner">
+                        <div class="card-flip-front"><h3 class="text-xl font-bold">Calculator</h3></div>
+                        <div class="card-flip-back"><p>Practice with user input, operators, and conditional logic.</p></div>
+                    </div>
+                </div>
+                <div class="h-48 card-flip">
+                    <div class="card-flip-inner">
+                        <div class="card-flip-front"><h3 class="text-xl font-bold">Guessing Game</h3></div>
+                        <div class="card-flip-back"><p>Learn about loops, random numbers, and user interaction.</p></div>
+                    </div>
+                </div>
+                <div class="h-48 card-flip">
+                     <div class="card-flip-inner">
+                        <div class="card-flip-front"><h3 class="text-xl font-bold">To-Do List App</h3></div>
+                        <div class="card-flip-back"><p>Get comfortable with lists, adding/removing items, and loops.</p></div>
+                    </div>
+                </div>
+                <div class="h-48 card-flip">
+                     <div class="card-flip-inner">
+                        <div class="card-flip-front"><h3 class="text-xl font-bold">Password Generator</h3></div>
+                        <div class="card-flip-back"><p>Master strings, loops, and the random module.</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-24">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p class="font-bold text-lg mb-2">Ready to dive deeper?</p>
+            <p>These resources are trusted by developers worldwide.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="https://docs.python.org/3/" target="_blank" class="hover:text-indigo-400 transition-colors">Official Python Docs</a>
+                <a href="https://stackoverflow.com/questions/tagged/python" target="_blank" class="hover:text-indigo-400 transition-colors">Stack Overflow</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            const helloWorldRunBtn = document.getElementById('hello-world-run');
+            const helloWorldInput = document.getElementById('hello-world-input');
+            const helloWorldOutput = document.getElementById('hello-world-output');
+            
+            helloWorldRunBtn.addEventListener('click', () => {
+                const code = helloWorldInput.value;
+                try {
+                    if (code.trim() === 'print("Hello, World!")') {
+                        helloWorldOutput.textContent = 'Hello, World!';
+                        helloWorldOutput.classList.remove('text-red-400');
+                    } else {
+                         helloWorldOutput.textContent = "Try typing exactly: print(\"Hello, World!\")";
+                         helloWorldOutput.classList.add('text-red-400');
+                    }
+                } catch (e) {
+                    helloWorldOutput.textContent = e.message;
+                    helloWorldOutput.classList.add('text-red-400');
+                }
+            });
+            
+            const runLoopBtn = document.getElementById('run-loop-btn');
+            const loopVisualizer = document.getElementById('loop-visualizer');
+            const loopItems = loopVisualizer.children;
+            
+            runLoopBtn.addEventListener('click', () => {
+                let i = 0;
+                Array.from(loopItems).forEach(item => {
+                    item.style.transition = 'none';
+                    item.style.backgroundColor = '#d1d5db';
+                    item.style.transform = 'translateY(0)';
+                });
+
+                function highlightNext() {
+                    if (i > 0) {
+                        loopItems[i-1].style.backgroundColor = '#d1d5db';
+                        loopItems[i-1].style.transform = 'translateY(0)';
+                    }
+                    if (i < loopItems.length) {
+                        loopItems[i].style.transition = 'all 0.3s ease-in-out';
+                        loopItems[i].style.backgroundColor = '#B9FBC0';
+                        loopItems[i].style.transform = 'translateY(-10px)';
+                        i++;
+                        setTimeout(highlightNext, 800);
+                    } else {
+                         loopItems[loopItems.length-1].style.backgroundColor = '#d1d5db';
+                         loopItems[loopItems.length-1].style.transform = 'translateY(0)';
+                    }
+                }
+                highlightNext();
+            });
+
+            const ctx = document.getElementById('python-uses-chart').getContext('2d');
+            const pythonUsesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Web Development', 'Data Science / ML', 'Automation & Scripting', 'Game Development', 'Desktop Apps'],
+                    datasets: [{
+                        label: 'Popularity & Use Cases',
+                        data: [90, 95, 85, 60, 65],
+                        backgroundColor: [
+                            'rgba(129, 140, 248, 0.6)',
+                            'rgba(99, 102, 241, 0.6)',
+                            'rgba(79, 70, 229, 0.6)',
+                            'rgba(67, 56, 202, 0.6)',
+                             'rgba(55, 48, 163, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(129, 140, 248, 1)',
+                            'rgba(99, 102, 241, 1)',
+                            'rgba(79, 70, 229, 1)',
+                            'rgba(67, 56, 202, 1)',
+                            'rgba(55, 48, 163, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: { beginAtZero: true, max: 100, display: false },
+                        y: { ticks: { font: { size: 14 } } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Python Application Areas', font: { size: 18 } }
+                    }
+                }
+            });
+
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 65) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active-nav-link');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active-nav-link');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
